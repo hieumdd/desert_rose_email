@@ -167,7 +167,3 @@ def run():
             "message_id": message_id,
         }
     return response
-
-
-x = run()
-x

@@ -21,6 +21,3 @@ def watch():
         print(e)
         gmail.users().stop(userId="me").execute()
         return watch_exec()
-        
-x = watch()
-x

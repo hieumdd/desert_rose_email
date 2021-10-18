@@ -1,6 +1,7 @@
 import json
 import base64
 
+from emails import run
 from watch import watch
 
 def main(request):
@@ -13,4 +14,6 @@ def main(request):
     if "watch" in data:
         return watch()
     elif "historyId" in data and "emailAddress" in data:
-        pass
+        return run()
+    else:
+        raise ValueError(data)
