@@ -5,9 +5,8 @@ on:
   workflow_dispatch:
 
 env:
-  FUNCTION_NAME: chloe_digital_universal_analytics
+  FUNCTION_NAME: desert_rose_email
   REGION: us-central1
-  QUEUE_ID: universal-analytics
 
 jobs:
   setup:
@@ -26,11 +25,11 @@ jobs:
         run: >-
           gcloud functions deploy ${{ env.FUNCTION_NAME }}
           --entry-point=main
-          --region=${{ env.REGION }}
+          --region=us-central1
           --timeout=530
           --project=${{ secrets.PROJECT_ID }}
-          --memory=4096MB
+          --memory=512MB
           --runtime=python39
           --trigger-http
           --service-account=${{ secrets.GCP_SA }}
-          --set-env-vars=CLIENT_ID=${{ secrets.CLIENT_ID }},CLIENT_SECRET=${{ secrets.CLIENT_SECRET }},AIRTABLE_API_KEY=${{ secrets.AIRTABLE_API_KEY }},PROJECT_ID=${{ secrets.PROJECT_ID }},QUEUE_ID=${{ env.QUEUE_ID }},REGION=${{ env.REGION }},FUNCTION_NAME=${{ env.FUNCTION_NAME }},GCP_SA=${{ secrets.GCP_SA }}
+          --set-env-vars=CLIENT_ID=${{ secrets.CLIENT_ID }},CLIENT_SECRET=${{ secrets.CLIENT_SECRET }},REFRESH_TOKEN=${{ secrets.REFRESH_TOKEN }}
