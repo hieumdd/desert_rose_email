@@ -8,6 +8,7 @@ from google.cloud import bigquery
 from auth import get_gmail_service
 
 BQ_CLIENT = bigquery.Client()
+DATASET = "CallTrackingMetrics"
 
 SCHEMA = [
     {"name": "date", "type": "DATE"},
@@ -48,6 +49,18 @@ def get_message(gmail, message_id):
         )
         .execute()
     )
+
+
+def check_loaded(message_id):
+    return [
+        dict(row.items())
+        for row in BQ_CLIENT.query(
+            f"""
+            SELECT COUNT(*) AS found FROM {DATASET}.meta_messages
+            WHERE message_id = "{message_id}"
+            """
+        ).result()
+    ][0]["found"]
 
 
 def get_message_html(message):
@@ -115,25 +128,45 @@ def load(rows):
     )
 
 
+def log_message(message_id):
+    BQ_CLIENT.load_table_from_json(
+        [{"message_id": message_id}],
+        "CallTrackingMetrics.meta_messages",
+        job_config=bigquery.LoadJobConfig(
+            create_disposition="CREATE_IF_NEEDED",
+            write_disposition="WRITE_APPEND",
+            schema=[{"name": "message_id", "type": "STRING"}],
+        ),
+    ).result()
+
+
 def run():
     gmail = get_gmail_service()
-    return {
-        "output_rows": load(
-            transform(
-                convert_to_json(
-                    get_csv(
-                        extract_csv_link(
-                            parse_message(
-                                get_message_html(
-                                    get_message(gmail, get_latest_email_id(gmail))
+    message_id = get_latest_email_id(gmail)
+    if check_loaded(message_id) == 0:
+        response = {
+            "status": "Loaded",
+            "output_rows": load(
+                transform(
+                    convert_to_json(
+                        get_csv(
+                            extract_csv_link(
+                                parse_message(
+                                    get_message_html(get_message(gmail, message_id))
                                 )
                             )
                         )
                     )
                 )
-            )
-        ),
-    }
+            ),
+        }
+        log_message(message_id)
+    else:
+        response = {
+            "status": "Skipped",
+            "message_id": message_id,
+        }
+    return response
 
 
 x = run()
