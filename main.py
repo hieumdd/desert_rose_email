@@ -12,8 +12,11 @@ def main(request):
     print(data)
 
     if "watch" in data:
-        return watch()
+        response = watch()
     elif "historyId" in data and "emailAddress" in data:
-        return run()
+        response = run()
     else:
         raise ValueError(data)
+    
+    print(response)
+    return response
