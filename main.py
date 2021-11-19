@@ -1,10 +1,18 @@
 import json
 import base64
 
-from emails import run
-from watch import watch
+from google.cloud import bigquery
 
-def main(request):
+from libs.gmail import get_gmail_service
+from controller.email import run
+from controller.watch import watch
+from models.CallLogs import CallLogs
+
+BQ_CLIENT = bigquery.Client()
+DATASET = "CallTrackingMetrics"
+
+
+def main(request) -> dict:
     request_json = request.get_json()
     message = request_json["message"]
     data_bytes = message["data"]
@@ -12,11 +20,16 @@ def main(request):
     print(data)
 
     if "watch" in data:
-        response = watch()
+        response = watch(get_gmail_service())
     elif "historyId" in data and "emailAddress" in data:
-        response = run()
+        response = run(
+            BQ_CLIENT,
+            get_gmail_service(),
+            DATASET,
+            CallLogs,
+        )
     else:
         raise ValueError(data)
-    
+
     print(response)
     return response

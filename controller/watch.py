@@ -1,7 +1,7 @@
-from auth import get_gmail_service
+from googleapiclient.discovery import Resource
 
 
-def watch():
+def watch(gmail: Resource) -> dict:
     def watch_exec():
         return (
             gmail.users()
@@ -13,8 +13,6 @@ def watch():
             )
             .execute()
         )
-
-    gmail = get_gmail_service()
     try:
         return watch_exec()
     except Exception as e:
