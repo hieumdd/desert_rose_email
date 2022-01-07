@@ -6,12 +6,8 @@ from main import main
 
 
 def run(data):
-    data_json = json.dumps(data)
-    data_encoded = base64.b64encode(data_json.encode("utf-8"))
-    message = {"message": {"data": data_encoded}}
-    req = Mock(get_json=Mock(return_value=message), args=message)
-    res = main(req)
-    return res
+    message = {"message": {"data": base64.b64encode(json.dumps(data).encode("utf-8"))}}
+    return main(Mock(get_json=Mock(return_value=message), args=message))
 
 
 def test_events():
@@ -27,7 +23,7 @@ def test_events():
         assert res["message_id"]
 
 
-def test_tasks():
+def test_watch():
     res = run(
         {
             "watch": 1,
