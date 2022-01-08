@@ -8,6 +8,7 @@ from googleapiclient.discovery import Resource
 
 from libs.gmail import get_latest_email_id, get_message
 from libs.bigquery import is_loaded, load
+from libs.utils import compose
 from models.CallLogs import CallLogs
 
 
@@ -61,15 +62,14 @@ def run(
                 model["name"],
                 model["schema"],
                 model["transform"](
-                    convert_to_json(
-                        get_csv(
-                            extract_csv_link(
-                                parse_message(
-                                    get_message_html(get_message(gmail, message_id))
-                                )
-                            )
-                        )
-                    )
+                    compose(
+                        convert_to_json,
+                        get_csv,
+                        extract_csv_link,
+                        parse_message,
+                        get_message_html,
+                        get_message,
+                    )(gmail, message_id)
                 ),
             ),
         }

@@ -1,9 +1,11 @@
+safe_int = lambda x: int(x) if x else None
+
 CallLogs = {
     "name": "CallLogs",
     "transform": lambda rows: [
         {
             "date": row["Date"],
-            "call_id": int(row["CallId"]),
+            "call_id": safe_int(row["CallId"]),
             "customer_no": row["Customer #"],
             "source": row["source"],
             "medium": row["medium"],
@@ -11,7 +13,7 @@ CallLogs = {
             "ad_group_id": row["ad_group_id"],
             "adgroup_id": row["adgroup_id"],
             "keyword": row["keyword"],
-            "duration": int(row["Duration"]),
+            "duration": safe_int(row["Duration"]),
             "tags": row["Tags"],
         }
         for row in rows
